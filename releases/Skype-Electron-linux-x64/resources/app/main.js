@@ -3,10 +3,10 @@ const height = 650;
 const width = 1000;
 
 const electron = require('electron');
+const Tray = require('tray');
+const Menu = require('menu');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
-const Menu = require('menu');
-const Tray = require('tray');
 const AppIcon = __dirname + '/images/app.png';
 
 // Report crashes to our server.
@@ -21,15 +21,26 @@ app.on('window-all-closed', function() {
   }
 });
 
+var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  }
+  return true;
+});
+
+if (shouldQuit) {
+  app.quit();
+  return;
+}
+
 app.on('ready', function() {
-  // Get screen size
   var electronScreen = electron.screen;
   var size = electronScreen.getPrimaryDisplay().workAreaSize;
 
-  // Create tray menu
   sysTray = new Tray(AppIcon);
   var contextMenu = Menu.buildFromTemplate([
-    { label: 'Show', click: function() { mainWindow.focus(); } },
+    { label: 'Show', click: function() { mainWindow.show(); mainWindow.focus(); } },
     { label: 'Quit', click: function() { app.quit(); } }
   ]);
   sysTray.setToolTip(AppName);
@@ -38,8 +49,23 @@ app.on('ready', function() {
   mainWindow = new BrowserWindow({ icon: AppIcon, width: width, height: height, x: Math.round(size['width'] / 2 - width / 2), y: Math.round(size['height'] / 2 - height / 2) });
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 
-  // Emitted when the window is closed.
+  // NOTE: For links not in a webview?
+  // mainWindow.webContents.on('new-window', function(e, url) {
+  //   e.preventDefault();
+  //   require('shell').openExternal(url);
+  // });
+
+  // Open the DevTools
+  mainWindow.webContents.openDevTools();
+  mainWindow.webContents.closeDevTools();
+  // TODO: Fix the above super awful hacky method to get the page to load
+  // NOTE: This seems to only be a problem with Skype so far
+
   mainWindow.on('closed', function() {
     mainWindow = null;
+  });
+
+  mainWindow.on('minimize', function() {
+    mainWindow.hide();
   });
 });
