@@ -1,2 +1,2 @@
-# Skype-Electron
-A simple Electron app for Skype Web.
+# Discord-Electron
+An Electron Discord app designed for use on Linux systems.
