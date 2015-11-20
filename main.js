@@ -23,7 +23,7 @@ app.on('window-all-closed', function() {
 
 var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
   if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
     mainWindow.focus();
   }
   return true;
