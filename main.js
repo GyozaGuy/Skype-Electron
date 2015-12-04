@@ -11,11 +11,13 @@ const APP = ELECTRON.app;
 const APPNAME = APP.getName();
 const BROWSERWINDOW = ELECTRON.BrowserWindow;
 const APPICON = PATH.join(__dirname, 'images', 'app.png');
+const APPICON_EVENT = PATH.join(__dirname, 'images', 'app_event.png');
 const IPC = ELECTRON.ipcMain;
 
 ELECTRON.crashReporter.start();
 
 var mainWindow;
+var sysTray;
 var isQuitting = false;
 
 function createMainWindow() {
@@ -27,7 +29,7 @@ function createMainWindow() {
     icon: APPICON,
     webPreferences: {
       nodeIntegration: false, // fails without this because of CommonJS script detection
-      preload: 'file:///' + __dirname + '/js/browser.js' //PATH.join(__dirname, 'js', 'browser.js')
+      preload: PATH.join(__dirname, 'js', 'browser.js')
     }
   });
 
@@ -44,6 +46,7 @@ function createMainWindow() {
 }
 
 function showAndCenter(win) {
+  sysTray.setImage(APPICON);
   center(win);
   win.show();
   win.focus();
@@ -76,7 +79,7 @@ if (shouldQuit) {
 }
 
 APP.on('ready', () => {
-  var sysTray = new TRAY(APPICON);
+  sysTray = new TRAY(APPICON);
   var contextMenu = MENU.buildFromTemplate([
     { label: 'Show', click: function() { showAndCenter(mainWindow); } },
     { label: 'Quit', click: function() { APP.quit(); } }
@@ -104,6 +107,10 @@ APP.on('activate', () => {
 
 APP.on('before-quit', () => {
   isQuitting = true;
+});
+
+IPC.on('change-icon', () => {
+  sysTray.setImage(APPICON_EVENT);
 });
 
 IPC.on('notification-click', () => {
