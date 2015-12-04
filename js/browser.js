@@ -1,10 +1,11 @@
 'use strict';
+
 const IPC = require('electron').ipcRenderer;
 const NativeNotification = Notification;
 
 Notification = function(title, options) {
   const notification = new NativeNotification(title, options);
-  
+
   notification.addEventListener('click', () => {
     IPC.send('notification-click');
   });
