@@ -46,7 +46,9 @@ function createMainWindow() {
 }
 
 function showAndCenter(win) {
-  sysTray.setImage(APPICON);
+  if (!win.isFocused()) {
+    sysTray.setImage(APPICON);
+  }
   center(win);
   win.show();
   win.focus();
