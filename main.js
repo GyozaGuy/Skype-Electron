@@ -1,8 +1,11 @@
 'use strict';
 
+// Change these to customize the app
+const URL = 'https://web.skype.com';
 const HEIGHT = 650;
 const WIDTH = 1000;
 
+// Everything below this should be the same for most apps
 const ELECTRON = require('electron');
 const PATH = require('path');
 const MENU = ELECTRON.Menu;
@@ -33,7 +36,7 @@ function createMainWindow() {
     }
   });
 
-  WIN.loadURL('https://web.skype.com');
+  WIN.loadURL(URL);
 
   WIN.on('focus', e => {
     sysTray.setImage(APPICON);
@@ -50,9 +53,6 @@ function createMainWindow() {
 }
 
 function showAndCenter(win) {
-  if (!win.isFocused()) {
-    sysTray.setImage(APPICON);
-  }
   center(win);
   win.show();
   win.focus();
