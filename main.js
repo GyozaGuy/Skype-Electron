@@ -22,6 +22,7 @@ ELECTRON.crashReporter.start();
 var mainWindow;
 var sysTray;
 var isQuitting = false;
+var unreadNotification = false;
 
 function createMainWindow() {
   const WIN = new ELECTRON.BrowserWindow({
@@ -39,7 +40,10 @@ function createMainWindow() {
   WIN.loadURL(URL);
 
   WIN.on('focus', e => {
-    sysTray.setImage(APPICON);
+    if (unreadNotification) {
+      unreadNotification = false;
+      sysTray.setImage(APPICON);
+    }
   });
 
   WIN.on('close', e => {
@@ -93,6 +97,10 @@ APP.on('ready', () => {
   sysTray.setToolTip(APPNAME);
   sysTray.setContextMenu(contextMenu);
 
+  sysTray.on('click', () => {
+    showAndCenter(mainWindow);
+  });
+
   mainWindow = createMainWindow();
 
   const PAGE = mainWindow.webContents;
@@ -116,7 +124,10 @@ APP.on('before-quit', () => {
 });
 
 IPC.on('change-icon', () => {
-  sysTray.setImage(APPICON_EVENT);
+  if (!unreadNotification) {
+    unreadNotification = true;
+    sysTray.setImage(APPICON_EVENT);
+  }
 });
 
 IPC.on('notification-click', () => {
